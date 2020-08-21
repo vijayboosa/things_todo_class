@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:things_todo/models/todo.dart';
 
-class AddTodoScreen extends StatelessWidget {
+class AddTodoScreen extends StatefulWidget {
+  final Function homePageSetState;
+
+  const AddTodoScreen({Key key, @required this.homePageSetState}) : super(key: key);
+
+
+  @override
+  _AddTodoScreenState createState() => _AddTodoScreenState();
+}
+
+class _AddTodoScreenState extends State<AddTodoScreen> {
+  var todoString = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,7 +28,7 @@ class AddTodoScreen extends StatelessWidget {
             child: TextField(
               style: TextStyle(fontSize: 20.0),
               onChanged: (val) {
-                print(val);
+                todoString = val;
               },
               decoration: InputDecoration(
                   prefixIcon: Icon(Icons.access_time),
@@ -48,7 +61,21 @@ class AddTodoScreen extends StatelessWidget {
             ),
           ),
           RaisedButton(
-            onPressed: () {},
+            onPressed: () {
+              if (todoString.length <=3){
+                print('todo length cannot be shorter.');
+              }else {
+              Todo todoTask = Todo(todoName: todoString, isCompleted: false, important: false);
+              listOfTodos.add(todoTask);
+              /*
+              setState(() {});
+              homePageSetState = setState;
+              homePageSetState(() {});
+               */
+              widget.homePageSetState(() {});
+              }
+              print(listOfTodos);
+            },
             child: Text(
               'Save Todo',
               style: TextStyle(color: Colors.white),

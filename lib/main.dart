@@ -13,9 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-
         primarySwatch: Colors.blue,
-
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(),
@@ -34,13 +32,31 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-//      floatingActionButton: Floating,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+                builder: (ctx) => AddTodoScreen(
+                      homePageSetState: setState,
+                    )),
+          );
+        },
+        child: Icon(Icons.add),
+      ),
       appBar: AppBar(
         backgroundColor: Colors.green,
         title: Text('Things-Todo'),
       ),
       body: Column(
-        children: listOfTodos.map((e) => todoCard(e)).toList(),
+        children: [
+          ListTile(
+            leading: Text('Checkbox'),
+            title: Text('Todo Name'),
+            trailing: Text('Important'),
+          ),
+          Divider(height: 10.0,),
+          ...listOfTodos.map((e) => todoCard(e)).toList(),
+        ],
       ),
     );
   }
@@ -70,20 +86,20 @@ class _MyHomePageState extends State<MyHomePage> {
 // Widget todoCard() {
 //   return Padding(
 //     padding: const EdgeInsets.only(left: 20.0, right: 30.0),
-  //     child: Row(
-  //       children: [
-  //         Text('Buy Eggs'),
-  //         Spacer(),
-  //         Checkbox(
-  //             value: value,
-  //             onChanged: (val) {
-  //               print(val);
-  //               setState(() {
-  //                 value = val;
-  //               });
-  //             })
-  //       ],
-  //     ),
-  //   );
-  // }
+//     child: Row(
+//       children: [
+//         Text('Buy Eggs'),
+//         Spacer(),
+//         Checkbox(
+//             value: value,
+//             onChanged: (val) {
+//               print(val);
+//               setState(() {
+//                 value = val;
+//               });
+//             })
+//       ],
+//     ),
+//   );
+// }
 }
