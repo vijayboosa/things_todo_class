@@ -49,12 +49,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: [
-          ListTile(
-            leading: Text('Checkbox'),
-            title: Text('Todo Name'),
-            trailing: Text('Important'),
-          ),
-          Divider(height: 10.0,),
           ...listOfTodos.map((e) => todoCard(e)).toList(),
         ],
       ),
@@ -62,44 +56,49 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget todoCard(Todo todo) {
-    return ListTile(
-      leading: Checkbox(
-          value: todo.isCompleted,
-          onChanged: (val) => setState(() {
-                todo.isCompleted = val;
-              })),
-      title: Text(todo.todoName),
-      trailing: IconButton(
-          icon: todo.important
-              ? Icon(Icons.star, color: Colors.yellow[700])
-              : Icon(
-                  Icons.star_border,
-                ),
-          onPressed: () {
-            setState(() {
-              todo.important = !todo.important;
-            });
-          }),
+    return Dismissible(
+      key: ObjectKey(todo),
+      onDismissed: (dir) {
+        print(dir);
+        listOfTodos.remove(todo);
+        setState(() {});
+      },
+      background: Container(color: Colors.blue, width: double.infinity,),
+      child: ListTile(
+        leading: Checkbox(
+            value: todo.isCompleted,
+            onChanged: (val) => setState(() {
+                  todo.isCompleted = val;
+                })),
+        title: Text(todo.todoName),
+        trailing: SizedBox(
+          width: 100.0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                color: Colors.red,
+                icon: Icon(Icons.delete_outline),
+                onPressed: () {
+                  listOfTodos.remove(todo);
+                  setState(() {});
+                },
+              ),
+              IconButton(
+                  icon: todo.important
+                      ? Icon(Icons.star, color: Colors.yellow[700])
+                      : Icon(
+                          Icons.star_border,
+                        ),
+                  onPressed: () {
+                    setState(() {
+                      todo.important = !todo.important;
+                    });
+                  }),
+            ],
+          ),
+        ),
+      ),
     );
   }
-
-// Widget todoCard() {
-//   return Padding(
-//     padding: const EdgeInsets.only(left: 20.0, right: 30.0),
-//     child: Row(
-//       children: [
-//         Text('Buy Eggs'),
-//         Spacer(),
-//         Checkbox(
-//             value: value,
-//             onChanged: (val) {
-//               print(val);
-//               setState(() {
-//                 value = val;
-//               });
-//             })
-//       ],
-//     ),
-//   );
-// }
 }
