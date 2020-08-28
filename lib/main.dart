@@ -58,12 +58,48 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget todoCard(Todo todo) {
     return Dismissible(
       key: ObjectKey(todo),
+      confirmDismiss: (val) async {
+        switch(val) {
+          case DismissDirection.startToEnd:
+            return showDialog<bool>(
+              context: context,
+              barrierDismissible: false, // user must tap button!
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Are you sure to Delete'),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Ok'),
+                      onPressed: () {
+                        Navigator.of(context).pop<bool>(true);
+                      },
+                    ),
+                    FlatButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop<bool>(false);
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+            break;
+          default:
+            return false;
+        }
+
+
+      },
       onDismissed: (dir) {
         print(dir);
         listOfTodos.remove(todo);
         setState(() {});
       },
-      background: Container(color: Colors.blue, width: double.infinity,),
+      background: Container(
+        color: Colors.blue,
+        width: double.infinity,
+      ),
       child: ListTile(
         leading: Checkbox(
             value: todo.isCompleted,
@@ -74,7 +110,6 @@ class _MyHomePageState extends State<MyHomePage> {
         trailing: SizedBox(
           width: 100.0,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               IconButton(
                 color: Colors.red,
