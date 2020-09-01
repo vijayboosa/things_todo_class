@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:things_todo/models/todo.dart';
 import 'package:things_todo/screens/add_todo_screen.dart';
+import 'package:sqflite/sqflite.dart';
 
 void main() {
   runApp(MyApp());
@@ -8,20 +9,62 @@ void main() {
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+
+  ///Function is executed when the db is created for the first time
+  ///helper function to onCreate argument in [openDatabase]
+  Future<void> _onCreate(Database db, int version) async {
+    await db.execute(
+      '''
+    CREATE TABLE TODOTABLE 
+    (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT, 
+    todoName TEXT, 
+    isCompleted BOOLEAN,
+    important BOOLEAN
+    );
+    ''',
+    );
+  }
+
+  ///[createDb] is a function to connect(or create a db) to Database
+  ///this function return [Future<Database>]
+  Future<Database> createDb() async {
+    return await openDatabase(
+      'TodoDb.db',
+      onCreate: _onCreate,
+      version: 1,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: MyHomePage(),
+    return FutureBuilder<Database>(
+      future: createDb(),
+      builder: (BuildContext ctx, AsyncSnapshot<Database> snap) {
+        print(snap);
+        if (snap.hasData) {
+          return MaterialApp(
+            title: 'Flutter Demo',
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+              visualDensity: VisualDensity.adaptivePlatformDensity,
+            ),
+            home: MyHomePage(
+              db: snap.data,
+            ),
+          );
+        }
+        return Center(child: CircularProgressIndicator());
+      },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  final Database db;
+
+  const MyHomePage({Key key, @required this.db}) : super(key: key);
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -59,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Dismissible(
       key: ObjectKey(todo),
       confirmDismiss: (val) async {
-        switch(val) {
+        switch (val) {
           case DismissDirection.startToEnd:
             return showDialog<bool>(
               context: context,
@@ -88,8 +131,6 @@ class _MyHomePageState extends State<MyHomePage> {
           default:
             return false;
         }
-
-
       },
       onDismissed: (dir) {
         print(dir);
