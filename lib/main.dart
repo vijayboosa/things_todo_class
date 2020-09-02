@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
 
   ///Function is executed when the db is created for the first time
-  ///helper function to onCreate argument in [openDatabase]
+  ///this is a helper method to onCreate argument in [openDatabase]
   Future<void> _onCreate(Database db, int version) async {
     await db.execute(
       '''
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  ///[createDb] is a function to connect(or create a db) to Database
+  ///[createDb] is a function to connect(or create) a Database
   ///this function return [Future<Database>]
   Future<Database> createDb() async {
     return await openDatabase(
@@ -39,9 +39,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Database>(
-      future: createDb(),
+      // using future builder to get database from [createDb] function.
+      future: createDb(), // Calling createDb
       builder: (BuildContext ctx, AsyncSnapshot<Database> snap) {
-        print(snap);
         if (snap.hasData) {
           return MaterialApp(
             title: 'Flutter Demo',
@@ -72,6 +72,48 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   bool value = false;
 
+  //TODO 1: Write A function to get or retrieve data from Database
+  Future<List<Todo>> getTodoFromDb() async {
+    // widget.db.execute('select * from table');
+    List<Map<String, dynamic>> data = await widget.db.query('TODOTABLE');
+
+    List<Todo> lTodos = data.map((element) {
+      return Todo(
+        todoName: element['todoname'],
+        important: element['important'],
+        isCompleted: element['iscompleted'],
+      );
+    }).toList();
+
+    return lTodos;
+
+    /*
+    <List<Map<String, dynamic>>>
+    [
+      {
+      'id' : 1,
+      'todoname': 'Buy Eggs',
+      'important': False,
+      'isCompleted': False,
+      },
+
+      {
+      'id' : 2,
+      'todoname': 'Buy Eggs',
+      'important': False,
+      'isCompleted': False,
+      },
+
+      {
+      'id' : 3,
+      'todoname': 'Buy Eggs',
+      'important': False,
+      'isCompleted': False,
+      },
+    ]
+   */
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,6 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
             MaterialPageRoute(
                 builder: (ctx) => AddTodoScreen(
                       homePageSetState: setState,
+                      db: widget.db,
                     )),
           );
         },
@@ -90,11 +133,30 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.green,
         title: Text('Things-Todo'),
       ),
-      body: Column(
-        children: [
-          ...listOfTodos.map((e) => todoCard(e)).toList(),
-        ],
+      body: FutureBuilder<List<Todo>>(
+        future: getTodoFromDb(),
+        builder: (BuildContext ctx, AsyncSnapshot<List<Todo>> snapData) {
+          if (snapData.hasData) {
+            return snapData.data.length == 0
+                ? noTodoWidget()
+                : Column(
+                    children: [
+                      ...snapData.data.map((e) => todoCard(e)).toList(),
+                    ],
+                  );
+          }
+
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
       ),
+    );
+  }
+
+  Widget noTodoWidget() {
+    return Center(
+      child: Text('NO TODO\'S TO SHOW :('),
     );
   }
 

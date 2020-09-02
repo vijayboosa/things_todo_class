@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:things_todo/models/todo.dart';
 
 class AddTodoScreen extends StatefulWidget {
   final Function homePageSetState;
+  final Database db;
 
-  const AddTodoScreen({Key key, @required this.homePageSetState}) : super(key: key);
+  const AddTodoScreen({Key key, @required this.homePageSetState, @required this.db}) : super(key: key);
 
 
   @override
@@ -29,6 +31,9 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
               style: TextStyle(fontSize: 20.0),
               onChanged: (val) {
                 todoString = val;
+              },
+              onSubmitted: () {
+
               },
               decoration: InputDecoration(
                   prefixIcon: Icon(Icons.access_time),
